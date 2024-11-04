@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// prisma/schema.prisma
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Employee {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  firstName   String
+  email       String     @unique
+  password    String
+  taskCountId String?    @unique @db.ObjectId
+  taskCounts  TaskCount? @relation(fields: [taskCountId], references: [id])
+  tasks       Task[]
+}
+
+model TaskCount {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  active    Int
+  newTask   Int
+  completed Int
+  failed    Int
+  Employee  Employee?
+}
+
+model Task {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  taskTitle       String
+  taskDescription String
+  taskDate        DateTime
+  category        String
+  active          Boolean
+  newTask         Boolean
+  completed       Boolean
+  failed          Boolean
+  employeeId      String   @db.ObjectId
+  Employee        Employee @relation(fields: [employeeId], references: [id])
+}
+
+model Admin {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  email    String @unique
+  password String
+}
